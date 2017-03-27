@@ -11,6 +11,8 @@ from dolfin import (
     TrialFunction, TestFunction, Function, dx, Constant, solve, assemble,
     DirichletBC, Expression, KrylovSolver
     )
+import numpy
+import sympy
 
 
 class ParabolicProblem(object):
@@ -233,21 +235,24 @@ def heun_step(
          [alpha, 0.0]]
     b = [1.0 - 1.0 / (2 * alpha), 1.0 / (2 * alpha)]
 
-    return runge_kutta_step(A, b, c,
-                            V, F, u0, t, dt,
-                            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
-                            tol=tol,
-                            verbose=verbose)
+    return runge_kutta_step(
+            A, b, c,
+            V, F, u0, t, dt,
+            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
+            tol=tol,
+            verbose=verbose
+            )
 
 
-def rk4_step(V,
-             F,
-             u0,
-             t, dt,
-             sympy_dirichlet_bcs=[],
-             tol=1.0e-10,
-             verbose=True
-             ):
+def rk4_step(
+        V,
+        F,
+        u0,
+        t, dt,
+        sympy_dirichlet_bcs=[],
+        tol=1.0e-10,
+        verbose=True
+        ):
     '''Classical RK4.
     '''
     c = [0.0, 0.5, 0.5, 1.0]
@@ -257,11 +262,13 @@ def rk4_step(V,
          [0.0, 0.0, 1.0, 0.0]]
     b = [1.0 / 6.0, 1.0 / 3.0, 1.0 / 3.0, 1.0 / 6.0]
 
-    return runge_kutta_step(A, b, c,
-                            V, F, u0, t, dt,
-                            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
-                            tol=tol,
-                            verbose=verbose)
+    return runge_kutta_step(
+            A, b, c,
+            V, F, u0, t, dt,
+            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
+            tol=tol,
+            verbose=verbose
+            )
 
 
 def rkf_step(
@@ -285,27 +292,26 @@ def rkf_step(
     # b = [25./216, 0.0, 1408./2565, 2197./4104, -1./5,  0.0] # 4th order
     b = [16./135, 0.0, 6656./12825,  28561./56430, -9./50, 2./55]  # 5th order
 
-    return runge_kutta_step(A, b, c,
-                            V, F, u0, t, dt,
-                            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
-                            tol=tol,
-                            verbose=verbose)
+    return runge_kutta_step(
+            A, b, c,
+            V, F, u0, t, dt,
+            sympy_dirichlet_bcs=sympy_dirichlet_bcs,
+            tol=tol,
+            verbose=verbose
+            )
 
 
-def runge_kutta_step(A, b, c,
-                     V,
-                     F,
-                     u0,
-                     t, dt,
-                     sympy_dirichlet_bcs=[],
-                     tol=1.0e-10,
-                     verbose=True
-                     ):
-    '''Runge's third-order method for u' = F(u).
-    '''
+def runge_kutta_step(
+        A, b, c,
+        V,
+        F,
+        u0,
+        t, dt,
+        sympy_dirichlet_bcs=[],
+        tol=1.0e-10,
+        verbose=True
+        ):
     # Make sure that the scheme is strictly upper-triangular.
-    import numpy
-    import sympy as smp
     s = len(b)
     A = numpy.array(A)
     # Can't handle fully implicit methods.
@@ -333,18 +339,22 @@ def runge_kutta_step(A, b, c,
     #   D. Pathria,
     #   <http://www.math.uh.edu/~hjm/june1995/p00379-p00388.pdf>.
     #
-    tt = smp.symbols('t')
+    tt = sympy.symbols('t')
     BCS = []
     # Get boundary conditions and their derivatives.
     for k in range(2):
         BCS.append([])
         for boundary, expr in sympy_dirichlet_bcs:
             # Form k-th derivative.
-            DexprDt = smp.diff(expr, tt, k)
+            DexprDt = sympy.diff(expr, tt, k)
             # TODO set degree of expression
-            BCS[-1].append(DirichletBC(V,
-                           Expression(smp.printing.ccode(DexprDt), t=t + dt),
-                           boundary))
+            BCS[-1].append(
+                DirichletBC(
+                    V,
+                    Expression(sympy.printing.ccode(DexprDt), t=t + dt),
+                    boundary
+                    )
+                )
 
     # Use the Constant() syntax to avoid compiling separate expressions for
     # different values of dt.
@@ -362,10 +372,11 @@ def runge_kutta_step(A, b, c,
         # TODO come up with something better here.
         for g in BCS[1]:
             g.t = t + c[i] * dt
-        solve(u * v * dx == L, k[i],
-              bcs=BCS[1],
-              solver_parameters=solver_params
-              )
+        solve(
+            u * v * dx == L, k[i],
+            bcs=BCS[1],
+            solver_parameters=solver_params
+            )
         # plot(k[-1])
         # interactive()
 
@@ -376,10 +387,11 @@ def runge_kutta_step(A, b, c,
     theta = Function(V)
     for g in BCS[0]:
         g.t = t + dt
-    solve(u * v * dx == (u0 + ddt * U) * v * dx,
-          theta,
-          bcs=BCS[0],
-          solver_parameters=solver_params
-          )
+    solve(
+        u * v * dx == (u0 + ddt * U) * v * dx,
+        theta,
+        bcs=BCS[0],
+        solver_parameters=solver_params
+        )
 
     return theta

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 import helpers
-import maelstrom.time_steppers as ts
+import parabolic
 
 from dolfin import (
     set_log_level, WARNING, Expression, FunctionSpace, DirichletBC, Function,
@@ -39,7 +39,7 @@ def problem_sin1d():
     f = Expression(sympy.printing.ccode(f_sympy), degree=MAX_DEGREE, t=0.0)
 
     # The corresponding operator in weak form.
-    class HeatEquation(ts.ParabolicProblem):
+    class HeatEquation(parabolic.ParabolicProblem):
         def __init__(self, V):
             super(HeatEquation, self).__init__()
             self.V = V
@@ -94,7 +94,7 @@ def problem_sinsin():
     f = Expression(sympy.printing.ccode(f_sympy), degree=4, t=0.0)
 
     # The corresponding operator in weak form.
-    class HeatEquation(ts.ParabolicProblem):
+    class HeatEquation(parabolic.ParabolicProblem):
         def __init__(self, V):
             super(HeatEquation, self).__init__()
             self.V = V
@@ -158,7 +158,7 @@ def problem_coscos_cartesian():
     kappa = Expression(sympy.printing.ccode(kappa_sympy), degree=1, t=0.0)
 
     # The corresponding operator in weak form.
-    class HeatEquation(ts.ParabolicProblem):
+    class HeatEquation(parabolic.ParabolicProblem):
         def __init__(self, V):
             super(HeatEquation, self).__init__()
             # Define the differential equation.
@@ -241,7 +241,7 @@ def problem_coscos_cylindrical():
             )
     kappa = Expression(sympy.printing.ccode(kappa_sympy), degree=1, t=0.0)
 
-    class HeatEquation(ts.ParabolicProblem):
+    class HeatEquation(parabolic.ParabolicProblem):
         def __init__(self, V):
             super(HeatEquation, self).__init__()
             # Define the differential equation.
@@ -316,7 +316,7 @@ def problem_stefanboltzmann():
     f = Expression(sympy.printing.ccode(f_sympy), degree=MAX_DEGREE, t=0.0)
     u0 = Expression(sympy.printing.ccode(u0), degree=MAX_DEGREE, t=0.0)
 
-    class HeatEquation(ts.ParabolicProblem):
+    class HeatEquation(parabolic.ParabolicProblem):
         def __init__(self, V):
             super(HeatEquation, self).__init__()
             # Define the differential equation.
@@ -349,7 +349,7 @@ def problem_stefanboltzmann():
 
 @pytest.mark.parametrize(
     'method', [
-        ts.ExplicitEuler
+        parabolic.ExplicitEuler
         ])
 @pytest.mark.parametrize(
     'problem', [
@@ -504,10 +504,10 @@ if __name__ == '__main__':
     Dt = [0.5**k for k in range(10)]
     errors = _compute_time_errors(
         problem_coscos_cartesian,
-        # ts.Dummy,
-        ts.ExplicitEuler,
-        # ts.ImplicitEuler,
-        # ts.Trapezoidal,
+        # parabolic.Dummy,
+        parabolic.ExplicitEuler,
+        # parabolic.ImplicitEuler,
+        # parabolic.Trapezoidal,
         mesh_sizes, Dt,
         )
     helpers.show_timeorder_info(Dt, mesh_sizes, {'theta': errors})
