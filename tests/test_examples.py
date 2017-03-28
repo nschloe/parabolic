@@ -21,7 +21,7 @@ def test_heat_equation_fenics():
             v = TestFunction(V)
             self.M = assemble(u * v * dx)
             self.A = assemble(-dot(grad(u), grad(v)) * dx)
-            self.f = assemble(1.0 * v * dx)
+            self.f = 1.0
             self.bcs = DirichletBC(self.V, 0.0, 'on_boundary')
             return
 
@@ -34,9 +34,7 @@ def test_heat_equation_fenics():
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
 
-            f.t = t
-            v = TestFunction(self.V)
-            b2 = assemble(f * v / (rho * cp) * dx)
+            b2 = assemble(self.f * v * dx)
 
             rhs = b - beta * b2
             self.bcs.apply(A, rhs)

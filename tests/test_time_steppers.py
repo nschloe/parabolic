@@ -32,8 +32,8 @@ def problem_sin1d():
     t = sympy.symbols('t')
     # m = sympy.sin(0.5*pi*t)
     m = sympy.exp(t)
-    # theta = m * x * (1-x)
-    theta = m * sympy.sin(pi * x[0])
+    theta = m * x[0] * (1-x[0])
+    # theta = m * sympy.sin(pi * x[0])
     # Produce a matching rhs.
     f_sympy = sympy.diff(theta, t) - sympy.diff(theta, x[0], 2)
     f = Expression(sympy.printing.ccode(f_sympy), degree=MAX_DEGREE, t=0.0)
@@ -66,7 +66,10 @@ def problem_sin1d():
             f.t = t
             b = assemble(f * v * dx)
 
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + b)
+            out = Function(self.V)
+            out.vector()[:] = \
+                alpha * (self.M * uvec) + beta * (self.A * uvec + b)
+            return out
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
@@ -76,7 +79,7 @@ def problem_sin1d():
             v = TestFunction(self.V)
             b2 = assemble(f * v * dx)
 
-            rhs = b - beta * b2
+            rhs = b.vector() - beta * b2
             self.bcs.apply(A, rhs)
 
             solver = \
@@ -209,10 +212,10 @@ def problem_coscos_cartesian():
     # solution = t**4 * sympy.sin(pi*x[0]) * sympy.sin(pi*x[1])
     # solution = sympy.sin(t) * sympy.sin(pi*x[0]) * sympy.sin(pi*x[1])
     # solution = sympy.cos(t) * sympy.sin(pi*x[0]) * sympy.sin(pi*x[1])
-    # solution = sympy.exp(t) * sympy.sin(pi*x[0]) * sympy.sin(pi*x[1])
-    solution = \
-        sympy.exp(t) * \
-        (0.25 - (x[0] - 0.5)**2) * (0.25 - (x[1] - 0.5)**2)
+    solution = sympy.exp(t) * sympy.sin(pi*x[0]) * sympy.sin(pi*x[1])
+    # solution = \
+    #     sympy.exp(t) * \
+    #     (0.25 - (x[0] - 0.5)**2) * (0.25 - (x[1] - 0.5)**2)
     # solution = sympy.cos(0.5*pi*t) * sympy.sin(pi*x) * sympy.sin(pi*y)
     # solution = \
     #     (sympy.exp(t)) * \
@@ -266,7 +269,10 @@ def problem_coscos_cartesian():
             f.t = t
             b = assemble(f * v / (rho * cp) * dx)
 
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + b)
+            out = Function(self.V)
+            out.vector()[:] = \
+                alpha * (self.M * uvec) + beta * (self.A * uvec + b)
+            return out
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
@@ -274,9 +280,9 @@ def problem_coscos_cartesian():
 
             f.t = t
             v = TestFunction(self.V)
-            b2 = assemble(f * v / (rho * cp) * dx)
+            b2 = f / (rho * cp)
 
-            rhs = b - beta * b2
+            rhs = assemble((b - beta * b2) * v * dx)
             self.bcs.apply(A, rhs)
 
             solver = \
@@ -454,7 +460,9 @@ def problem_coscos_cartesian():
 
 @pytest.mark.parametrize(
     'method', [
-        parabolic.ImplicitEuler
+        parabolic.ExplicitEuler,
+        parabolic.ImplicitEuler,
+        parabolic.Trapezoidal,
         ])
 @pytest.mark.parametrize(
     'problem', [
@@ -467,7 +475,7 @@ def problem_coscos_cartesian():
 def test_temporal_order(problem, method):
     # TODO add test for spatial order
     mesh_sizes = [16, 32, 64]
-    Dt = [0.5**k for k in range(2)]
+    Dt = [1.0e-3, 0.5e-3]
     errors = _compute_time_errors(problem, method, mesh_sizes, Dt)
 
     # Error bounds are of the form
@@ -616,8 +624,8 @@ if __name__ == '__main__':
         # problem_coscos_cartesian,
         # parabolic.Dummy,
         # parabolic.ExplicitEuler,
-        # parabolic.ImplicitEuler,
-        parabolic.Trapezoidal,
+        parabolic.ImplicitEuler,
+        # parabolic.Trapezoidal,
         mesh_sizes, Dt,
         plot_error=False
         )
