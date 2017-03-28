@@ -614,6 +614,15 @@ def _check_spatial_order(problem, method):
     return
 
 
+class Dummy(object):
+    def __init__(self, problem):
+        self.problem = problem
+        return
+
+    def step(self, u0, t, dt):
+        return u0
+
+
 if __name__ == '__main__':
     # For debugging purposes, show some info.
     mesh_sizes = [16, 32]
@@ -622,7 +631,7 @@ if __name__ == '__main__':
         problem_sin1d,
         # problem_sinsin,
         # problem_coscos_cartesian,
-        # parabolic.Dummy,
+        # Dummy,
         # parabolic.ExplicitEuler,
         parabolic.ImplicitEuler,
         # parabolic.Trapezoidal,

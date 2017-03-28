@@ -9,22 +9,6 @@ Routines for one time-stepping of the general equation
 '''
 
 
-class Dummy(object):
-    '''
-    Dummy method for :math:`u' = F(u)`.
-    '''
-    order = 0.0
-
-    def __init__(self, problem):
-        self.problem = problem
-        return
-
-    def step(self, u0, t, dt):
-        # (u1 - u0) / dt = 0
-        # u1 = u0
-        return u0
-
-
 class ExplicitEuler(object):
     '''
     Explicit Euler method for :math:`u' = F(u)`.
