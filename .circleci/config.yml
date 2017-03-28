@@ -12,7 +12,7 @@ jobs:
       - run: sudo -H pip2 install -U pytest pytest-cov
       - run: apt-get install -y git
       - checkout
-      - run: pip install .
+      - run: pip2 install .
       # The actual test
       - run: MPLBACKEND=Agg pytest --cov parabolic
       # submit to codecov
