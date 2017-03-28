@@ -4,14 +4,13 @@ jobs:
   build:
     working_directory: ~/parabolic
     docker:
+      # https://fenicsproject.org/download/
       - image: quay.io/fenicsproject/stable:current
     steps:
-      - setup_remote_docker:
-          reusable: true
       - run: apt-get update
       - run: apt-get install -y python-pip
-      - run: apt-get install -y git
       - run: pip install pytest pytest-cov
+      - run: apt-get install -y git
       - checkout
       - run: pip install .
       # The actual test
