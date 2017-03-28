@@ -17,6 +17,7 @@ jobs:
       - run: cd tests
       - run: MPLBACKEND=Agg pytest --cov parabolic
       - run: find -name .coverage
+      - run: cat .coverage
       # submit to codecov
       - run: apt-get install -y curl
       - run: find -name .coverage
