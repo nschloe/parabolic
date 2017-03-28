@@ -9,7 +9,7 @@ Routines for one time-stepping of the general equation
 '''
 
 
-class Dummy():
+class Dummy(object):
     '''
     Dummy method for :math:`u' = F(u)`.
     '''
@@ -25,7 +25,7 @@ class Dummy():
         return u0
 
 
-class ExplicitEuler():
+class ExplicitEuler(object):
     '''
     Explicit Euler method for :math:`u' = F(u)`.
     '''
@@ -43,7 +43,7 @@ class ExplicitEuler():
         return u1
 
 
-class ImplicitEuler():
+class ImplicitEuler(object):
     '''
     Implicit Euler method for :math:`u' = F(u)`.
     '''
@@ -61,7 +61,7 @@ class ImplicitEuler():
         return u1
 
 
-class Trapezoidal():
+class Trapezoidal(object):
     '''
     Trapezoidal method for :math:`u' = F(u)`. (Known as Crank-Nicolson if
     combined with a second-order discretization in time, or used in an ODE

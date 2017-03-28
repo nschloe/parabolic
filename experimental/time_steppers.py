@@ -3,7 +3,7 @@
 import numpy
 
 
-class Heun():
+class Heun(object):
     '''
     Heun's method for :math:`u' = F(u)`.
     https://en.wikipedia.org/wiki/Heun's_method
