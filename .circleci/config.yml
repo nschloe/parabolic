@@ -9,7 +9,6 @@ jobs:
       - setup_remote_docker:
           reusable: true
       - run: apt-get update
-      - run: apt-get install -y python-dolfin
       - run: apt-get install -y python-pip
       - run: apt-get install -y git
       - run: pip install pytest pytest-cov
