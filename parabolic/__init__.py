@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-from time_steppers import *
+from .time_steppers import *
 
-from parabolic.__about__ import (
+from .__about__ import (
     __version__,
     __author__,
     __author_email__
