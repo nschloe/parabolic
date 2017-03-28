@@ -9,7 +9,7 @@ jobs:
     steps:
       - run: apt-get update
       - run: apt-get install -y python-pip
-      - run: pip install pytest pytest-cov
+      - run: sudo -H pip install -U pytest pytest-cov
       - run: apt-get install -y git
       - checkout
       - run: pip install .
