@@ -16,10 +16,11 @@ jobs:
       - run: apt-get install -y python-numpy
       - run: apt-get install -y python-pip
       - run: apt-get install -y git
-      - run: pip install matplotlib pytest pytest-cov
+      - run: pip install pytest pytest-cov
       - checkout
+      - run: pip install .
       # The actual test
-      - run: PYTHONPATH=$PWD:$PYTHONPATH MPLBACKEND=Agg pytest --cov parabolic
+      - run: MPLBACKEND=Agg pytest --cov parabolic
       # submit to codecov
       - run: apt-get install -y curl
       - run: bash <(curl -s https://codecov.io/bash)
