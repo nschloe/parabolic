@@ -31,7 +31,7 @@ def test_heat_equation_fenics():
             return alpha * (self.M * uvec) + beta * (self.A * uvec + self.f)
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
-            # Solve  alpha * M * u + beta * F(u, t) = b for u.
+            # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
             rhs = b - beta * self.f
             self.bcs.apply(A, rhs)

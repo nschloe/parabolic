@@ -27,7 +27,14 @@ def show_timeorder_info(Dt, mesh_sizes, errors):
     '''Performs consistency check for the given problem/method combination and
     show some information about it. Useful for debugging.
     '''
+    # Error bounds are of the form
+    #
+    #     ||E|| < C t_n (C1 dt^k + C2 dh^l).
+    #
+    # Hence, divide the error by t_n (=dt in this case).
     # Compute the numerical order of convergence.
+    errors = {key: errors[key] / Dt for key in errors}
+
     orders = {
         key: _compute_numerical_order_of_convergence(Dt, errors[key].T).T
         for key in errors
@@ -39,16 +46,16 @@ def show_timeorder_info(Dt, mesh_sizes, errors):
         print('Mesh size %d:' % mesh_size)
         print('dt = %e' % Dt[0]),
         for label, e in errors.items():
-            print('   err_%s = %e' % (label, e[i][0])),
+            print('   err_%s / dt = %e' % (label, e[i][0])),
         print
         for j in range(len(Dt) - 1):
             print('                 '),
             for label, o in orders.items():
-                print('   ord_%s = %e' % (label, o[i][j])),
+                print('   ord_%s      = %e' % (label, o[i][j])),
             print
             print('dt = %e' % Dt[j+1]),
             for label, e in errors.items():
-                print('   err_%s = %e' % (label, e[i][j+1])),
+                print('   err_%s / dt = %e' % (label, e[i][j+1])),
             print
 
     # Create a figure
@@ -68,7 +75,7 @@ def show_timeorder_info(Dt, mesh_sizes, errors):
                     color='0.7'
                     )
         plt.xlabel('dt')
-        plt.ylabel('||%s-%s_h||' % (label, label))
+        plt.ylabel('||%s-%s_h|| / dt' % (label, label))
         # plt.title('Method: %s' % method['name'])
         plt.legend()
     plt.show()
