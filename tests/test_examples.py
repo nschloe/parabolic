@@ -33,7 +33,12 @@ def test_heat_equation_fenics():
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
-            rhs = b - beta * self.f
+
+            f.t = t
+            v = TestFunction(self.V)
+            b2 = assemble(f * v / (rho * cp) * dx)
+
+            rhs = b - beta * b2
             self.bcs.apply(A, rhs)
 
             solver = KrylovSolver('gmres', 'ilu')

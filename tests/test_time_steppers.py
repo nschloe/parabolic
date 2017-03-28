@@ -31,9 +31,9 @@ def problem_sin1d():
     x = sympy.DeferredVector('x')
     t = sympy.symbols('t')
     # m = sympy.sin(0.5*pi*t)
-    m = sympy.exp(t) - 0.0
+    m = sympy.exp(t)
     # theta = m * x * (1-x)
-    theta = m * sympy.sin(1 * pi * x[0])
+    theta = m * sympy.sin(pi * x[0])
     # Produce a matching rhs.
     f_sympy = sympy.diff(theta, t) - sympy.diff(theta, x[0], 2)
     f = Expression(sympy.printing.ccode(f_sympy), degree=MAX_DEGREE, t=0.0)
@@ -55,19 +55,28 @@ def problem_sin1d():
             v = TestFunction(V)
             self.M = assemble(u * v * dx)
             self.A = assemble(-inner(grad(u), grad(v)) * dx)
-            self.f = assemble(f * v * dx)
             self.bcs = DirichletBC(self.V, self.sol, 'on_boundary')
             return
 
         def eval_alpha_M_beta_F(self, alpha, beta, u, t):
             # Evaluate  alpha * M * u + beta * F(u, t).
             uvec = u.vector()
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + self.f)
+
+            v = TestFunction(self.V)
+            f.t = t
+            b = assemble(f * v * dx)
+
+            return alpha * (self.M * uvec) + beta * (self.A * uvec + b)
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
-            rhs = b - beta * self.f
+
+            f.t = t
+            v = TestFunction(self.V)
+            b2 = assemble(f * v * dx)
+
+            rhs = b - beta * b2
             self.bcs.apply(A, rhs)
 
             solver = \
@@ -135,7 +144,6 @@ def problem_sinsin():
                 - inner(kappa * grad(u), grad(v / (rho * cp))) * dx
                 + inner(kappa * grad(u), n) * v / (rho * cp) * ds
                 )
-            self.f = assemble(f * v / (rho * cp) * dx)
 
             self.bcs = DirichletBC(self.V, self.sol, 'on_boundary')
             return
@@ -143,12 +151,22 @@ def problem_sinsin():
         def eval_alpha_M_beta_F(self, alpha, beta, u, t):
             # Evaluate  alpha * M * u + beta * F(u, t).
             uvec = u.vector()
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + self.f)
+
+            v = TestFunction(self.V)
+            f.t = t
+            b = assemble(f * v / (rho * cp) * dx)
+
+            return alpha * (self.M * uvec) + beta * (self.A * uvec + b)
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
-            rhs = b - beta * self.f
+
+            f.t = t
+            v = TestFunction(self.V)
+            b2 = assemble(f * v / (rho * cp) * dx)
+
+            rhs = b - beta * b2
             self.bcs.apply(A, rhs)
 
             solver = \
@@ -236,7 +254,6 @@ def problem_coscos_cartesian():
                 - inner(kappa * grad(u), grad(v / (rho * cp))) * dx
                 + inner(kappa * grad(u), n) * v / (rho * cp) * ds
                 )
-            self.f = assemble(f * v / (rho * cp) * dx)
 
             self.bcs = DirichletBC(self.V, self.sol, 'on_boundary')
             return
@@ -244,12 +261,22 @@ def problem_coscos_cartesian():
         def eval_alpha_M_beta_F(self, alpha, beta, u, t):
             # Evaluate  alpha * M * u + beta * F(u, t).
             uvec = u.vector()
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + self.f)
+
+            v = TestFunction(self.V)
+            f.t = t
+            b = assemble(f * v / (rho * cp) * dx)
+
+            return alpha * (self.M * uvec) + beta * (self.A * uvec + b)
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
-            rhs = b - beta * self.f
+
+            f.t = t
+            v = TestFunction(self.V)
+            b2 = assemble(f * v / (rho * cp) * dx)
+
+            rhs = b - beta * b2
             self.bcs.apply(A, rhs)
 
             solver = \
@@ -582,16 +609,17 @@ def _check_spatial_order(problem, method):
 if __name__ == '__main__':
     # For debugging purposes, show some info.
     mesh_sizes = [16, 32]
-    Dt = [0.5**k for k in range(15)]
+    Dt = [0.5**k for k in range(10)]
     errors = _compute_time_errors(
-        # problem_sin1d,
+        problem_sin1d,
         # problem_sinsin,
-        problem_coscos_cartesian,
+        # problem_coscos_cartesian,
         # parabolic.Dummy,
         # parabolic.ExplicitEuler,
         # parabolic.ImplicitEuler,
         parabolic.Trapezoidal,
         mesh_sizes, Dt,
+        plot_error=False
         )
 
     helpers.show_timeorder_info(Dt, mesh_sizes, {'theta': errors})

@@ -13,7 +13,6 @@ class Dummy():
     '''
     Dummy method for :math:`u' = F(u)`.
     '''
-    name = 'Dummy'
     order = 0.0
 
     def __init__(self, problem):
@@ -30,7 +29,6 @@ class ExplicitEuler():
     '''
     Explicit Euler method for :math:`u' = F(u)`.
     '''
-    name = 'Explicit Euler'
     order = 1.0
 
     def __init__(self, problem):
@@ -49,7 +47,6 @@ class ImplicitEuler():
     '''
     Implicit Euler method for :math:`u' = F(u)`.
     '''
-    name = 'Implicit Euler'
     order = 1.0
 
     def __init__(self, problem):
@@ -66,10 +63,10 @@ class ImplicitEuler():
 
 class Trapezoidal():
     '''
-    Trapezoidal method for :math:`u' = F(u)`. (Known as Crank-Nicolson in the
-    ODE context.)
+    Trapezoidal method for :math:`u' = F(u)`. (Known as Crank-Nicolson if
+    combined with a second-order discretization in time, or used in an ODE
+    context.)
     '''
-    name = 'Trapezoidal'
     order = 2.0
 
     def __init__(self, problem):
