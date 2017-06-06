@@ -21,22 +21,20 @@ def test_heat_equation_fenics():
             v = TestFunction(V)
             self.M = assemble(u * v * dx)
             self.A = assemble(-dot(grad(u), grad(v)) * dx)
-            self.f = 1.0
+            self.b = assemble(1.0 * v * dx)
             self.bcs = DirichletBC(self.V, 0.0, 'on_boundary')
             return
 
         def eval_alpha_M_beta_F(self, alpha, beta, u, t):
             # Evaluate  alpha * M * u + beta * F(u, t).
             uvec = u.vector()
-            return alpha * (self.M * uvec) + beta * (self.A * uvec + self.f)
+            return alpha * (self.M * uvec) + beta * (self.A * uvec + self.b)
 
         def solve_alpha_M_beta_F(self, alpha, beta, b, t):
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
 
-            b2 = assemble(self.f * v * dx)
-
-            rhs = b - beta * b2
+            rhs = b - self.b
             self.bcs.apply(A, rhs)
 
             solver = KrylovSolver('gmres', 'ilu')
