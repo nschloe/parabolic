@@ -1,0 +1,12 @@
+[MESSAGES CONTROL]
+
+disable=
+    bad-continuation,
+    fixme,
+    invalid-name,
+    invalid-unary-operand-type,
+    missing-docstring,
+    no-member,
+    no-name-in-module,
+    too-few-public-methods,
+    too-many-locals,

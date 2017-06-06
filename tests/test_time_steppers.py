@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 #
-import helpers
-import parabolic
+from __future__ import print_function
 
+# pylint: disable=import-error
 from dolfin import (
     set_log_level, WARNING, Expression, FunctionSpace, DirichletBC, Function,
     errornorm, project, plot, interactive, triangle, norm, UnitIntervalMesh,
@@ -13,6 +13,9 @@ import matplotlib.pyplot as plt
 import numpy
 import pytest
 import sympy
+
+import helpers
+import parabolic
 
 
 # Turn down the log level to only error messages.
@@ -40,7 +43,7 @@ def problem_sin1d():
 
     class Heat(object):
         '''
-        u' = \Delta u + f
+        u' = \\Delta u + f
         '''
         def __init__(self, V):
             self.sol = Expression(
@@ -127,7 +130,7 @@ def problem_sinsin():
 
     class Heat(object):
         '''
-        u' = \Delta u + f
+        u' = \\Delta u + f
         '''
         def __init__(self, V):
             self.sol = Expression(
@@ -237,7 +240,7 @@ def problem_coscos_cartesian():
 
     class Heat(object):
         '''
-        u' = \Delta u + f
+        u' = \\Delta u + f
         '''
         def __init__(self, V):
             self.sol = Expression(
@@ -486,7 +489,7 @@ def test_temporal_order(problem, method):
     errors /= Dt
 
     # numerical orders of convergence
-    orders = helpers._compute_numerical_order_of_convergence(Dt, errors.T).T
+    orders = helpers.compute_numerical_order_of_convergence(Dt, errors.T).T
 
     # The test is considered passed if the numerical order of convergence
     # matches the expected order in at least the first step in the coarsest
@@ -498,7 +501,7 @@ def test_temporal_order(problem, method):
 
 
 def _compute_time_errors(problem, method, mesh_sizes, Dt, plot_error=False):
-    mesh_generator, solution, ProblemClass, cell_type = problem()
+    mesh_generator, solution, ProblemClass, _ = problem()
     # Translate data into FEniCS expressions.
     fenics_sol = Expression(
             sympy.printing.ccode(solution),
@@ -619,15 +622,16 @@ class Dummy(object):
         self.problem = problem
         return
 
+    # pylint: disable=no-self-use, unused-argument
     def step(self, u0, t, dt):
         return u0
 
 
 if __name__ == '__main__':
     # For debugging purposes, show some info.
-    mesh_sizes = [16, 32]
-    Dt = [0.5**k for k in range(10)]
-    errors = _compute_time_errors(
+    mesh_sizes_ = [16, 32]
+    Dt_ = [0.5**k_ for k_ in range(10)]
+    errors_ = _compute_time_errors(
         problem_sin1d,
         # problem_sinsin,
         # problem_coscos_cartesian,
@@ -635,8 +639,7 @@ if __name__ == '__main__':
         # parabolic.ExplicitEuler,
         parabolic.ImplicitEuler,
         # parabolic.Trapezoidal,
-        mesh_sizes, Dt,
+        mesh_sizes_, Dt_,
         plot_error=False
         )
-
-    helpers.show_timeorder_info(Dt, mesh_sizes, {'theta': errors})
+    helpers.show_timeorder_info(Dt_, mesh_sizes_, {'theta': errors_})

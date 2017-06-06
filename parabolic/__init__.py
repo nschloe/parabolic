@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 #
+from __future__ import print_function
+
+import pipdated
+
+# pylint: disable=wildcard-import
 from .time_steppers import *
 
 from .__about__ import (
@@ -8,7 +13,6 @@ from .__about__ import (
     __author_email__
     )
 
-import pipdated
 if pipdated.needs_checking('parabolic'):
     msg = pipdated.check('parabolic', __version__)
     if msg:
