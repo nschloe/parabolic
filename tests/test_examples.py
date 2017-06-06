@@ -2,6 +2,7 @@
 #
 import parabolic
 
+# pylint: disable=import-error
 from dolfin import (
     FunctionSpace, DirichletBC, Function, grad, dx, dot, UnitSquareMesh,
     TrialFunction, TestFunction, assemble, Constant, XDMFFile, KrylovSolver,
@@ -13,7 +14,7 @@ def test_heat_equation_fenics():
     # Define problem
     class Heat(object):
         '''
-        u' = \Delta u + f
+        u' = \\Delta u + f
         '''
         def __init__(self, V):
             self.V = V
@@ -25,6 +26,7 @@ def test_heat_equation_fenics():
             self.bcs = DirichletBC(self.V, 0.0, 'on_boundary')
             return
 
+        # pylint: disable=unused-argument
         def eval_alpha_M_beta_F(self, alpha, beta, u, t):
             # Evaluate  alpha * M * u + beta * F(u, t).
             uvec = u.vector()
