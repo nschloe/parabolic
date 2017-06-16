@@ -36,7 +36,7 @@ def test_heat_equation_fenics():
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
 
-            rhs = b - self.b
+            rhs = b - beta * self.b
             self.bcs.apply(A, rhs)
 
             solver = KrylovSolver('gmres', 'ilu')
@@ -59,26 +59,24 @@ def test_heat_equation_fenics():
     solve(u*v*dx == Constant(0.0)*v*dx, u0)
 
     u1 = Function(V)
-    u1 = u0.copy()
-
-    xf = XDMFFile('heat%04d.xdmf' % 0)
-    xf.write(u1)
+    u1.assign(u0)
 
     # create time stepper
     # stepper = parabolic.Dummy(Heat(V))
-    stepper = parabolic.ExplicitEuler(Heat(V))
-    # stepper = parabolic.ImplicitEuler(Heat(V))
+    # stepper = parabolic.ExplicitEuler(Heat(V))
+    stepper = parabolic.ImplicitEuler(Heat(V))
     # stepper = parabolic.Trapezoidal(Heat(V))
 
     # step
     t = 0.0
     dt = 1.0e-3
-    for k in range(10):
-        u1.assign(stepper.step(u0, t, dt))
-        u0 = u1.copy()
-
-        xf = XDMFFile('heat%04d.xdmf' % (k+1))
-        xf.write(u1)
+    with XDMFFile('heat.xdmf') as xf:
+        xf.write(u1, t)
+        for _ in range(10):
+            u1.assign(stepper.step(u0, t, dt))
+            u0.assign(u1)
+            t += dt
+            xf.write(u1, t)
     return
 
 
