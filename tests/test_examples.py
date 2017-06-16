@@ -72,7 +72,7 @@ def test_heat_equation_fenics():
     dt = 1.0e-3
     with XDMFFile('heat.xdmf') as xf:
         xf.write(u1, t)
-        for k in range(10):
+        for _ in range(10):
             u1.assign(stepper.step(u0, t, dt))
             u0.assign(u1)
             t += dt
