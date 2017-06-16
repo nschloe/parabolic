@@ -36,7 +36,7 @@ def test_heat_equation_fenics():
             # Solve  alpha * M * u + beta * F(u, t) = b  for u.
             A = alpha * self.M + beta * self.A
 
-            rhs = b - self.b
+            rhs = b - beta * self.b
             self.bcs.apply(A, rhs)
 
             solver = KrylovSolver('gmres', 'ilu')
@@ -63,8 +63,8 @@ def test_heat_equation_fenics():
 
     # create time stepper
     # stepper = parabolic.Dummy(Heat(V))
-    stepper = parabolic.ExplicitEuler(Heat(V))
-    # stepper = parabolic.ImplicitEuler(Heat(V))
+    # stepper = parabolic.ExplicitEuler(Heat(V))
+    stepper = parabolic.ImplicitEuler(Heat(V))
     # stepper = parabolic.Trapezoidal(Heat(V))
 
     # step
