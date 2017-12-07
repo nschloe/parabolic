@@ -39,7 +39,7 @@ setup(
     install_requires=[
         'matplotlib',
         'numpy',
-        'pipdated',
+        'pipdate',
         ],
     classifiers=[
         about['__status__'],
