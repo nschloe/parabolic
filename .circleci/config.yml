@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/parabolic
     docker:
       # https://fenicsproject.org/download/
-      - image: quay.io/fenicsproject/stable:2017.2.0.r1
+      - image: quay.io/fenicsproject/stable:2017.2.0.r4
     steps:
       - run: apt-get update
       - run: apt-get install -y python3-pip
@@ -14,8 +14,7 @@ jobs:
       - checkout
       - run: pip3 install .
       # lint
-      - run: pylint parabolic/
-      - run: pylint tests/*.py
+      - run: pylint parabolic/ tests/*.py
       # The actual test
       - run: PYTHONPATH=$PWD:$PYTHONPATH MPLBACKEND=Agg pytest --cov parabolic
       # submit to codecov

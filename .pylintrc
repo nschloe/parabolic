@@ -1,7 +1,6 @@
 [MESSAGES CONTROL]
 
 disable=
-    bad-continuation,
     fixme,
     invalid-name,
     invalid-unary-operand-type,

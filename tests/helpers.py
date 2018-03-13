@@ -9,7 +9,7 @@ import warnings
 
 # pylint: disable=import-error
 from dolfin import (
-    Expression, assemble, FunctionSpace, interpolate, plot, interactive,
+    Expression, assemble, FunctionSpace, interpolate, plot,
     errornorm, dx, Function, VectorFunctionSpace, DirichletBC, project
     )
 import matplotlib.pyplot as plt
@@ -253,5 +253,4 @@ def compute_time_errors(problem, MethodClass, mesh_sizes, Dt):
                 # divu1 = 1 / r * (r * u1[0]).dx(0) + u1[1].dx(1)
                 divu1.assign(project(u1[0].dx(0) + u1[1].dx(1), P))
                 plot(divu1, title='div(u1)')
-                interactive()
     return errors

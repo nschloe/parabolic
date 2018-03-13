@@ -5,7 +5,7 @@ from __future__ import print_function
 # pylint: disable=import-error
 from dolfin import (
     set_log_level, WARNING, Expression, FunctionSpace, DirichletBC, Function,
-    errornorm, project, plot, interactive, triangle, norm, UnitIntervalMesh,
+    errornorm, project, plot, triangle, norm, UnitIntervalMesh,
     pi, inner, grad, dx, ds, UnitSquareMesh, FacetNormal, interval,
     TrialFunction, TestFunction, assemble, KrylovSolver, MPI
     )
@@ -549,8 +549,8 @@ def _compute_time_errors(problem, method, mesh_sizes, Dt, plot_error=False):
             errors[k][j] = errornorm(fenics_sol, theta_approx)
             if plot_error:
                 error.assign(project(fenics_sol - theta_approx, V))
-                plot(error, title='error (dt=%e)' % dt)
-                interactive()
+                plot(error, title='error (dt={:e})'.format(dt))
+                plt.show()
     return errors
 
 
@@ -640,6 +640,6 @@ if __name__ == '__main__':
         parabolic.ImplicitEuler,
         # parabolic.Trapezoidal,
         mesh_sizes_, Dt_,
-        plot_error=False
+        plot_error=True
         )
     helpers.show_timeorder_info(Dt_, mesh_sizes_, {'theta': errors_})
