@@ -14,7 +14,7 @@ jobs:
       - checkout
       - run: pip3 install .
       # lint
-      - run: pylint parabolic/ tests/*.py
+      - run: pylint setup.py parabolic/ tests/*.py
       # The actual test
       - run: PYTHONPATH=$PWD:$PYTHONPATH MPLBACKEND=Agg pytest --cov parabolic
       # submit to codecov
