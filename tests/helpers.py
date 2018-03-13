@@ -20,9 +20,9 @@ import sympy
 def _truncate_degree(degree, max_degree=10):
     if degree > max_degree:
         warnings.warn(
-            'Expression degree (%r) > maximum degree (%d). Truncating.'
-            % (degree, max_degree)
-            )
+            'Expression degree ({}) > maximum degree ({}). Truncating.'.format(
+                degree, max_degree
+                ))
         return max_degree
     return degree
 
@@ -74,10 +74,10 @@ def show_timeorder_info(Dt, mesh_sizes, errors):
         e0 = err[-1][0]
         for o in range(7):
             plt.loglog(
-                    [Dt[0], Dt[-1]],
-                    [e0, e0 * (Dt[-1] / Dt[0]) ** o],
-                    color='0.7'
-                    )
+                [Dt[0], Dt[-1]],
+                [e0, e0 * (Dt[-1] / Dt[0]) ** o],
+                color='0.7'
+                )
         plt.xlabel('dt')
         plt.ylabel('||%s-%s_h|| / dt' % (label, label))
         # plt.title('Method: %s' % method['name'])
@@ -116,39 +116,40 @@ def compute_time_errors(problem, MethodClass, mesh_sizes, Dt):
     mesh_generator, solution, f, mu, rho, cell_type = problem()
     # Translate data into FEniCS expressions.
     sol_u = Expression(
-            (
-                sympy.printing.ccode(solution['u']['value'][0]),
-                sympy.printing.ccode(solution['u']['value'][1])
-            ),
-            degree=_truncate_degree(solution['u']['degree']),
-            t=0.0,
-            cell=cell_type
-            )
+        (
+            sympy.printing.ccode(solution['u']['value'][0]),
+            sympy.printing.ccode(solution['u']['value'][1])
+        ),
+        degree=_truncate_degree(solution['u']['degree']),
+        t=0.0,
+        cell=cell_type
+        )
     sol_p = Expression(
-            sympy.printing.ccode(solution['p']['value']),
-            degree=_truncate_degree(solution['p']['degree']),
-            t=0.0,
-            cell=cell_type
-            )
+        sympy.printing.ccode(solution['p']['value']),
+        degree=_truncate_degree(solution['p']['degree']),
+        t=0.0,
+        cell=cell_type
+        )
 
     fenics_rhs0 = Expression(
-            (
-                sympy.printing.ccode(f['value'][0]),
-                sympy.printing.ccode(f['value'][1])
-            ),
-            degree=_truncate_degree(f['degree']),
-            t=0.0,
-            mu=mu, rho=rho,
-            cell=cell_type
-            )
+        (
+            sympy.printing.ccode(f['value'][0]),
+            sympy.printing.ccode(f['value'][1])
+        ),
+        degree=_truncate_degree(f['degree']),
+        t=0.0,
+        mu=mu, rho=rho,
+        cell=cell_type
+        )
     # Deep-copy expression to be able to provide f0, f1 for the Dirichlet-
     # boundary conditions later on.
-    fenics_rhs1 = Expression(fenics_rhs0.cppcode,
-                             degree=_truncate_degree(f['degree']),
-                             t=0.0,
-                             mu=mu, rho=rho,
-                             cell=cell_type
-                             )
+    fenics_rhs1 = Expression(
+        fenics_rhs0.cppcode,
+        degree=_truncate_degree(f['degree']),
+        t=0.0,
+        mu=mu, rho=rho,
+        cell=cell_type
+        )
     # Create initial states.
     p0 = Expression(
         sol_p.cppcode,
@@ -168,24 +169,25 @@ def compute_time_errors(problem, MethodClass, mesh_sizes, Dt):
         W = VectorFunctionSpace(mesh, 'CG', 2)
         P = FunctionSpace(mesh, 'CG', 1)
         method = MethodClass(
-                W, P,
-                rho, mu,
-                theta=1.0,
-                # theta=0.5,
-                stabilization=None
-                # stabilization='SUPG'
-                )
+            W, P,
+            rho, mu,
+            theta=1.0,
+            # theta=0.5,
+            stabilization=None
+            # stabilization='SUPG'
+            )
         u1 = Function(W)
         p1 = Function(P)
         err_p = Function(P)
         divu1 = Function(P)
         for j, dt in enumerate(Dt):
             # Prepare previous states for multistepping.
-            u = [Expression(
-                sol_u.cppcode,
-                degree=_truncate_degree(solution['u']['degree']),
-                t=0.0,
-                cell=cell_type
+            u = [
+                Expression(
+                    sol_u.cppcode,
+                    degree=_truncate_degree(solution['u']['degree']),
+                    t=0.0,
+                    cell=cell_type
                 ),
                 # Expression(
                 # sol_u.cppcode,
@@ -201,14 +203,15 @@ def compute_time_errors(problem, MethodClass, mesh_sizes, Dt):
             p_bcs = []
             fenics_rhs0.t = 0.0
             fenics_rhs1.t = dt
-            method.step(dt,
-                        u1, p1,
-                        u, p0,
-                        u_bcs=u_bcs, p_bcs=p_bcs,
-                        f0=fenics_rhs0, f1=fenics_rhs1,
-                        verbose=False,
-                        tol=1.0e-10
-                        )
+            method.step(
+                dt,
+                u1, p1,
+                u, p0,
+                u_bcs=u_bcs, p_bcs=p_bcs,
+                f0=fenics_rhs0, f1=fenics_rhs1,
+                verbose=False,
+                tol=1.0e-10
+                )
             sol_u.t = dt
             sol_p.t = dt
             errors['u'][k][j] = errornorm(sol_u, u1)

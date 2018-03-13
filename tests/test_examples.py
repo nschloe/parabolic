@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 #
-import parabolic
-
 # pylint: disable=import-error
 from dolfin import (
     FunctionSpace, DirichletBC, Function, grad, dx, dot, UnitSquareMesh,
     TrialFunction, TestFunction, assemble, Constant, XDMFFile, KrylovSolver,
     solve
     )
+
+import parabolic
 
 
 def test_heat_equation_fenics():

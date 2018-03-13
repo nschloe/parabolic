@@ -47,11 +47,11 @@ def problem_sin1d():
         '''
         def __init__(self, V):
             self.sol = Expression(
-                    sympy.printing.ccode(theta),
-                    degree=MAX_DEGREE,
-                    t=0.0,
-                    cell=triangle
-                    )
+                sympy.printing.ccode(theta),
+                degree=MAX_DEGREE,
+                t=0.0,
+                cell=triangle
+                )
 
             self.V = V
             u = TrialFunction(V)
@@ -134,11 +134,11 @@ def problem_sinsin():
         '''
         def __init__(self, V):
             self.sol = Expression(
-                    sympy.printing.ccode(theta),
-                    degree=MAX_DEGREE,
-                    t=0.0,
-                    cell=triangle
-                    )
+                sympy.printing.ccode(theta),
+                degree=MAX_DEGREE,
+                t=0.0,
+                cell=triangle
+                )
 
             self.V = V
             u = TrialFunction(V)
@@ -244,11 +244,11 @@ def problem_coscos_cartesian():
         '''
         def __init__(self, V):
             self.sol = Expression(
-                    sympy.printing.ccode(solution),
-                    degree=MAX_DEGREE,
-                    t=0.0,
-                    cell=triangle
-                    )
+                sympy.printing.ccode(solution),
+                degree=MAX_DEGREE,
+                t=0.0,
+                cell=triangle
+                )
 
             self.V = V
             u = TrialFunction(V)
@@ -504,20 +504,20 @@ def _compute_time_errors(problem, method, mesh_sizes, Dt, plot_error=False):
     mesh_generator, solution, ProblemClass, _ = problem()
     # Translate data into FEniCS expressions.
     fenics_sol = Expression(
-            sympy.printing.ccode(solution),
-            degree=MAX_DEGREE,
-            t=0.0
-            )
+        sympy.printing.ccode(solution),
+        degree=MAX_DEGREE,
+        t=0.0
+        )
     # Compute the problem
     errors = numpy.empty((len(mesh_sizes), len(Dt)))
     # Create initial state.
     # Deepcopy the expression into theta0. Specify the cell to allow for
     # more involved operations with it (e.g., grad()).
     theta0 = Expression(
-            fenics_sol.cppcode,
-            degree=MAX_DEGREE,
-            t=0.0
-            )
+        fenics_sol.cppcode,
+        degree=MAX_DEGREE,
+        t=0.0
+        )
     for k, mesh_size in enumerate(mesh_sizes):
         mesh = mesh_generator(mesh_size)
 
@@ -559,18 +559,18 @@ def _check_spatial_order(problem, method):
 
     # Translate data into FEniCS expressions.
     fenics_sol = Expression(
-            sympy.printing.ccode(solution['value']),
-            degree=solution['degree'],
-            t=0.0
-            )
+        sympy.printing.ccode(solution['value']),
+        degree=solution['degree'],
+        t=0.0
+        )
 
     # Create initial solution.
     theta0 = Expression(
-            fenics_sol.cppcode,
-            degree=solution['degree'],
-            t=0.0,
-            cell=triangle
-            )
+        fenics_sol.cppcode,
+        degree=solution['degree'],
+        t=0.0,
+        cell=triangle
+        )
 
     # Estimate the error component in space.
     # Leave out too rough discretizations to avoid showing spurious errors.
@@ -587,14 +587,14 @@ def _check_spatial_order(problem, method):
         # bcs = DirichletBC(V, fenics_sol, 'on_boundary')
         # Create initial state.
         theta_approx = method(
-                V,
-                weak_F,
-                theta0,
-                0.0, dt,
-                bcs=[solution],
-                tol=1.0e-12,
-                verbose=True
-                )
+            V,
+            weak_F,
+            theta0,
+            0.0, dt,
+            bcs=[solution],
+            tol=1.0e-12,
+            verbose=True
+            )
         # Compute the error.
         fenics_sol.t = dt
         Err.append(
